@@ -20,7 +20,7 @@ params = {'function': 'TIME_SERIES_INTRADAY',
 #endregion
 
 #region Prep 2024 API call
-yyyy = '2024'
+yyyy = '2020'
 mm = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 #endregion
 
@@ -45,8 +45,8 @@ for m in mm:
   
 
 #region Prep 2025 API call
-yyyy = '2025'
-mm = ['01', '02', '03', '04', '05', '06', '07', '08', '09']
+yyyy = '2021'
+mm = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 #endregion
 
 #region 2025 API call

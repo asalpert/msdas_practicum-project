@@ -61,7 +61,7 @@ def resample_data(df, frequency):
                  'close': 'mean',
                  'high': 'max',
                  'low': 'min',
-                 'volume': 'mean'}
+                 'volume': 'sum'}
     
     df = df.set_index('timestamp')
 
@@ -71,7 +71,10 @@ def resample_data(df, frequency):
 
     return resampled_df
 
-def volatility_check(resampled_df):
+def volatility_check(df, frequency):
+    
+    resampled_df = resample_data(df, frequency)
+
     resampled_df['open-close'] = resampled_df['open'] - resampled_df['close']
     resampled_df['high-low'] = resampled_df['high'] - resampled_df['low']
 
@@ -86,6 +89,27 @@ def volatility_check(resampled_df):
          labs(title='Difference between high and low prices'))
     
     return volatiltiy_summary, oc_plot, hl_plot
+
+
+time_intervals = ['1H', '1D', 'W', '1M', 'Q', 'Y'] # day, month, week, month, quarter, year
+
+bep_oc_stats = []
+bep_hl_stats = []
+bep_volatity_plots = []
+
+for inter in time_intervals:
+    bep_summary, bep_oc, bep_hl = volatility_check(bep_df, inter)
+
+    bep_oc_mean = bep_summary['open-close']['mean']
+    bep_oc_max = bep_summary['open-close']['max']
+
+    bep_hl_mean = bep_summary['high-low']['mean']
+    bep_hl_max = bep_summary['high-low']['max']
+
+    bep_oc_stats.append({'interval': inter, 'mean': bep_oc_mean, 'max': bep_oc_max})
+    bep_hl_stats.append({'interval': inter, 'mean': bep_hl_mean, 'max': bep_hl_max})
+    bep_volatity_plots.append({'interval': inter, 'open-close': bep_oc, 'high-low': bep_hl})
+
 
 
 
