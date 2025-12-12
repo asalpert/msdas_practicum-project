@@ -1,0 +1,93 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Libraries and Data}
+library(astsa) # for ARIMA modelling
+library(data.table)
+library(dplyr)
+library(forecast)
+
+# Read data
+aapl <- read.csv("data_files/AAPL_combined.csv.gz")
+bep <- read.csv("data_files/BEP_combined.csv.gz")
+lly <- read.csv("data_files/LLY_combined.csv.gz")
+```
+
+
+```{r Data preprocessing}
+# Clean up columns
+data_preprocess <- function(df){
+  output <- df %>%
+    rename("timestamp" = "Unnamed..0",
+           "open" = "X1..open",
+           "high" = "X2..high",
+           "low" = "X3..low",
+           "close" = "X4..close",
+           "volume" = "X5..volume")
+  return(output)
+}
+
+aapl <- data_preprocess(aapl)
+bep <- data_preprocess(bep)
+lly <- data_preprocess(lly)
+
+# Add volatility
+daily_volatility <- function(df){
+  output <- df %>%
+    select(timestamp, open, close) %>%
+    na.omit() %>%
+    mutate(date = as.Date(timestamp)) %>%
+    group_by(date) %>%
+    summarize(
+      open = first(open),
+      close = last(close)
+    ) %>%
+    mutate(
+      log_return = log(1 + (close - open) / open),
+      volatility = sqrt(log_return)
+    ) %>%
+    select(date, volatility)
+}
+
+aapl_vol <- daily_volatility(aapl)
+bep_vol <- daily_volatility(bep)
+lly_vol <- daily_volatility(lly)
+```
+
+```{r ARIMA aapl}
+aapl_vol_ts <- ts(aapl_vol$volatility, frequency = 252)  # ~252 trading days per year
+
+aapl_fit <- auto.arima(aapl_vol_ts)
+
+summary(aapl_fit)
+
+forecast_aapl <- forecast(aapl_fit, h = 30)
+
+autoplot(forecast_aapl)
+```
+```{r ARIMA bep}
+bep_vol_ts <- ts(bep_vol$volatility, frequency = 252)  # ~252 trading days per year
+
+bep_fit <- auto.arima(bep_vol_ts)
+
+summary(bep_fit)
+
+forecast_bep <- forecast(bep_fit, h = 30)
+
+autoplot(forecast_bep)
+```
+
+```{r ARIMA lly}
+lly_vol_ts <- ts(lly_vol$volatility, frequency = 252)  # ~252 trading days per year
+
+lly_fit <- auto.arima(lly_vol_ts)
+
+summary(lly_fit)
+
+forecast_lly <- forecast(lly_fit, h = 30)
+
+autoplot(forecast_lly)
+```
+
+
