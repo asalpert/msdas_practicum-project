@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 /data_files
 /data_files_2
+/data/tmux_getdata.py
 # C extensions
 *.so
 
@@ -212,3 +213,5 @@ __marimo__/
 
 #Data
 *.csv.gz
+*.csv
+*.pth
